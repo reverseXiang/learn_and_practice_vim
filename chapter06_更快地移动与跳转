@@ -1,0 +1,168 @@
+移动与跳转是文本编辑过程中非常重要的技巧，熟练掌握
+可以大大提高编辑效率，下面就介绍一下vim里面的高效
+移动与跳转操作。
+
+
+6.1 区分实际行与屏幕行
+
+如果一行文本过长，有可能在屏幕上显示为多行。即一个实际行可能对应
+多个屏幕行。(实际行与屏幕行都只有一个换行)
+
+- gj : 向下移动一个屏幕行
+- gk : 向上移动一个屏幕行
+- g0 : 移动到屏幕行的行首
+- g^ : 移动到屏幕行第一个非空白字符
+- g$ : 移动到屏幕行行尾
+
+针对屏幕行的操作在某些时候很方便，设想一实际行非常长，如果直接使用
+h,j,k,l去移动操作很难得到想要的效果。可以在下面试试，对比一下。
+
+[lab]
+尝试将光标移动到下面句子的*符号处
+
+REPORTING BUGS GNU coreutils online help: <http://www.gnu.org/software/coreutils/> Report tee translation bugs to * <http://translationproject.org/team/> COPYRIGHT Copyright  © 2017 Free Software Foundation, Inc. *  License GPLv3+: GNU GPL version 3 or later <http://gnu.org/licenses/gpl.html>. *  This is free software: you are free to change and redistribute it.  There is NO WARRANTY, to the extent permitted by law.
+
+
+
+
+
+6.2 基于单词的移动
+
+命令     |  光标动作
+w        |  正向移动到下一单词的开头
+b        |  反向移动到当前单词/上一单词的开头
+e        |  正向移动到当前单词/下一单词的结尾
+ge       |  反向移动到上一单词的结尾
+
+
+
+[lab]
+体验一下这几个指令，看看能不能快速移动到自己想去的位置。
+
+"""
+     The traditional protocol for writing to someone is that the string ‘-o’,
+     either at the end of a line or on a line by itself, means that it is the
+     other person's turn to talk.  The string ‘oo’ means that the person
+     believes the conversation to be over.
+"""
+
+
+
+
+
+6.3 对字符的查找
+
+命令     |  用途
+f{char}  |  正向移动到下一个{char}所在之处
+F{char}  |  反向移动到上一个{char}所在之处
+t{char}  |  正向移动到下一个{char}所在之处的前一个字符
+T{char}  |  反向移动到上一个{char}所在之处的后一个字符
+;        |  重复上次字符查找命令
+,        |  反转方向查找上次的字符查找命令
+
+f与t都是查找字符，差别只在于”一个字符“。t的查找结果是不包括
+{char}的。
+
+[lab]
+I've been execpting you.
+将下面的句子改为上面的句子
+I've been execpting you, Mister Bound.
+
+**提示**
+一个非常实用的组合 f,dt.
+
+
+
+
+
+6.4 通过查找进行移动
+试试在普通模式下按下命令“/char”，/char表示查找字符串"char"。
+/就是一个查找命令，通过n和N可以正向和反向遍历查找结果。
+
+操作符也能和查找动作结合一起使用.
+
+[lab]
+将下面括号内的内容连同括号一起删去
+"""
+     The traditional protocol for writing to someone is that the string ‘-o’,
+     either at the end of a line or on a line by itself, ( means that it is the
+     other person's turn to talk. ) The string ‘oo’ means that the person
+     believes the conversation to be over.
+"""
+
+**提示**
+先将光标移动到”(“处，再按下d\)命令
+
+
+
+
+
+
+6.5 精确的文本对象选择选区
+vim的语义化命令非常强大，特别体现在各种文本对象选择选区中。
+
+[lab]
+先将光标移动到符号*的位置(其实只需要将光标移动到配对符号内即可)，
+再执行左侧指令，观察效果。
+
+命令   |   文本
+vit    |    <div>head*</div>
+vi"    |    "head*"
+vi'    |    'head*'
+vi}    |    { head* }
+vi]    |    [ head* ]
+
+**注意**
+vi]与vi[效果是一样的，其它同理。
+命令vit中，v是操作符，it是动作命令，表示in tab。
+试试把v换成其它操作符，比如d,c,y等。
+再试试把i换成a，如vat, va", va', va[，看看效果又是如何。
+
+还有其它文本对象，比如a),i),a>,i>,a`,i`,aw,iw,
+aW,iW,ap,ip(p表示段落),as,is(s表示句子)。
+这些都可以操作， 非常直观，不需要死记硬背。
+
+
+
+[lab]
+<a href="#">click here</a>
+将下面语句改成上面语句的样式
+<a href="{url}">{title}</a>
+
+
+
+
+
+6.6 设置位置标记，以便快速跳回
+
+在很多IDE里面都有书签这个功能，vim同样也有。
+- m{a-zA-Z} : 当使用该命令，即在光标当前位置标记一个书签，比如ma。
+              跳回该位置使用命令`a(a就是书签名字)。小写的书签名字
+              意味着标记是局部可见的，即只能在当前文件内进行跳转。
+              而大写书签可以跨文件生效。
+- `{mark}   : 跳转到书签{mark}
+
+为了方便，一般直接使用mm与`m
+
+vim里面还有一些自动位置标记
+
+位置标记   |  跳转到
+``         |  当前文件中上次跳转动作之前的位置
+`.         |  上次修改的地方
+`^         |  上次插入的地方
+
+
+
+
+
+
+6.7 在匹配括号间跳转
+
+- % : 在一组开、闭括号间跳转
+
+[lab]
+和``命令配合，可以在2个括号间进行跳转
+([{ aaa bbb ccc }])
+
+
+
